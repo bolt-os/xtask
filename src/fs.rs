@@ -102,7 +102,7 @@ pub fn symlink<P: AsRef<Path>, Q: AsRef<Path>>(
 
         let link = if link.is_dir() {
             let mut path = link.to_path_buf();
-            path.push(link.file_name().unwrap());
+            path.push(original.file_name().unwrap());
             Cow::Owned(path)
         } else {
             Cow::Borrowed(link)

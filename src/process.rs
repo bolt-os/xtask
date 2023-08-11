@@ -32,11 +32,12 @@ use std::{ffi::OsStr, process::Command};
 
 /// Extensions to [`Command`]
 pub trait CommandExt {
+    fn log_command(&mut self) -> &mut Self;
     fn execute(&mut self) -> anyhow::Result<&mut Self>;
 }
 
 impl CommandExt for Command {
-    fn execute(&mut self) -> anyhow::Result<&mut Self> {
+    fn log_command(&mut self) -> &mut Self {
         println!(
             "% {} {}",
             self.get_program().to_str().unwrap(),
@@ -46,7 +47,11 @@ impl CommandExt for Command {
                 .to_str()
                 .unwrap(),
         );
-        self.spawn()?.wait()?.exit_ok()?;
+        self
+    }
+
+    fn execute(&mut self) -> anyhow::Result<&mut Self> {
+        self.log_command().spawn()?.wait()?.exit_ok()?;
         Ok(self)
     }
 }
