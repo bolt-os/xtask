@@ -34,6 +34,16 @@ use std::{ffi::OsStr, process::Command};
 pub trait CommandExt {
     fn log_command(&mut self) -> &mut Self;
     fn execute(&mut self) -> anyhow::Result<&mut Self>;
+
+    /// Adds an argument to pass to the program if `pred` is `true`.
+    fn arg_if(&mut self, pred: bool, arg: impl AsRef<OsStr>) -> &mut Self;
+
+    /// Adds arguments to pass to the program if `pred` is `true`.
+    fn args_if(
+        &mut self,
+        pred: bool,
+        args: impl IntoIterator<Item = impl AsRef<OsStr>>,
+    ) -> &mut Self;
 }
 
 impl CommandExt for Command {
@@ -53,5 +63,25 @@ impl CommandExt for Command {
     fn execute(&mut self) -> anyhow::Result<&mut Self> {
         self.log_command().spawn()?.wait()?.exit_ok()?;
         Ok(self)
+    }
+
+    #[inline(always)]
+    fn arg_if(&mut self, pred: bool, arg: impl AsRef<OsStr>) -> &mut Self {
+        if pred {
+            self.arg(arg);
+        }
+        self
+    }
+
+    #[inline(always)]
+    fn args_if(
+        &mut self,
+        pred: bool,
+        args: impl IntoIterator<Item = impl AsRef<OsStr>>,
+    ) -> &mut Self {
+        if pred {
+            self.args(args);
+        }
+        self
     }
 }
